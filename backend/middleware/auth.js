@@ -1,17 +1,20 @@
 const jwt = require("jsonwebtoken");
-const bodyParser = require("body-parser");
-module.exports = (req, res, next) => {
+
+const authentification = function auth(req, res, next) {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
-    const userId = decodedToken.userId;
-    console.log(userId);
+    const detoken = jwt.verify(token, "RANDOM_SECRET_TOKEN");
+    const userId = detoken.userId;
     if (req.body.userId && req.body.userId !== userId) {
       throw "Invalid user ID";
     } else {
       next();
     }
-  } catch {
-    res.status(401).json({ error: new Error("Invalid request") });
+  } catch (error) {
+    res.status(401).json({
+      error: new Error("Invalid request !! "),
+    });
   }
 };
+
+module.exports = authentification;

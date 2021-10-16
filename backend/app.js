@@ -1,24 +1,32 @@
 // importer express
 const express = require("express");
-// body parser : parse les requete entrant dans le middleware
-const bodyParser = require("body-parser");
-// objet http
-const { connection, Mongoose } = require("mongoose");
-
 // creer une app express
 const app = express();
 
+// body parser : parse les requete entrant dans le middleware
+const body = require("body-parser");
+// objet http
+const userRouter = require("./routes/userRoute");
+const sauceRoute = require("./routes/sauceRoute");
+
+const authentification = require("./middleware/auth");
+const path = require("path");
 // connection avec Mongoose
 const mongoose = require("mongoose");
 // variable d' environnement
-const dotvent = require("dotenv");
-dotvent.config();
+const dotenv = require("dotenv");
+// // .load();
+dotenv.parse;
+dotenv.config();
+if (dotenv.error) {
+  throw dotenv.error;
+}
 
 const APP_SECRET = process.env.APP_SECRET;
 const USER_ID = process.env.USER_ID;
 mongoose
   .connect(
-    `mongodb+srv://${USER_ID}:${APP_SECRET}@cluster0.skc60.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
+    `mongodb+srv://${USER_ID}:${APP_SECRET}@cluster002.skc60.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => console.log("The connexion is ok "))
@@ -38,24 +46,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(bodyParser.json());
+app.use(body.json());
+app.use("/image", express.static(path.join(__dirname, "image")));
 
-//helmet
-//path
+// const sauceRouter = require("./routes/sauceRoute");
 
-const userRoute = require("./routes/userRoute");
+app.use("/api/auth", userRouter);
+app.use("/api/sauces", sauceRoute);
 
-app.use("/api/auth/sign", userRoute);
-app.use("/api/auth/login", userRoute);
-
-// middleware
-app.use((req, res, next) => {
-  res.json("request is sending with use");
-  next();
-});
-app.use((req, res) => {
-  console.log("request send with success");
-});
-
-// exporter le fichier permet d'utiliser l'app sur les autre fichier
 module.exports = app;
